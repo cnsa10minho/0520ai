@@ -1,0 +1,237 @@
+import React, { useState } from 'react';
+import { Search, ShoppingCart, ChevronDown, ChevronUp, Menu, Globe, User } from 'lucide-react';
+
+// --- 디자인 토큰 정의 (Tailwind Config 대용) ---
+const tokens = {
+  colors: {
+    primary: '#024ad8', // HP Electric Blue
+    primaryDeep: '#0e3191',
+    ink: '#1a1a1a',
+    onInk: '#ffffff',
+    canvas: '#ffffff',
+    cloud: '#f7f7f7',
+    fog: '#e8e8e8',
+    steel: '#c2c2c2',
+    bloomCoral: '#ff5050',
+  },
+  spacing: {
+    section: '80px',
+  },
+  rounded: {
+    md: '4px',    // Buttons
+    lg: '8px',    // Icons
+    xl: '16px',   // Cards
+  }
+};
+
+const HPDesignSystem = () => {
+  return (
+    <div className="min-h-screen bg-white font-['Inter',sans-serif] text-[#1a1a1a] antialiased">
+      
+      {/* 1. Utility Strip */}
+      <div className="bg-[#1a1a1a] text-white h-[36px] flex items-center justify-between px-8 text-[14px]">
+        <div className="flex gap-6 items-center">
+          <div className="flex items-center gap-1 opacity-80 cursor-pointer">
+            <Globe size={14} /> <span>Republic of Korea</span>
+          </div>
+          <div className="flex gap-4 border-l border-white/20 pl-4">
+            <span className="font-medium cursor-pointer">For Home</span>
+            <span className="opacity-60 cursor-pointer hover:opacity-100">For Business</span>
+          </div>
+        </div>
+        <div className="flex gap-6 items-center opacity-80">
+          <span className="cursor-pointer">Sign in</span>
+          <span className="cursor-pointer">Support</span>
+        </div>
+      </div>
+
+      {/* 2. Top Nav */}
+      <nav className="h-[64px] border-b border-[#e8e8e8] flex items-center justify-between px-8 sticky top-0 bg-white z-50">
+        <div className="flex items-center gap-10">
+          {/* HP Wordmark (Placeholder) */}
+          <div className="text-[28px] font-bold tracking-tighter text-black mr-4">hp</div>
+          <div className="hidden lg:flex gap-8 text-[16px] font-normal">
+            {['Laptops', 'Desktops', 'Printers', 'Accessories', 'Solutions'].map((item) => (
+              <a key={item} href="#" className="hover:text-[#024ad8] transition-colors">{item}</a>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="relative hidden md:block">
+            <input 
+              type="text" 
+              placeholder="Search HP.com"
+              className="w-[240px] h-[40px] bg-white border border-[#c2c2c2] rounded-[4px] px-4 py-2 text-[14px] focus:border-[#1a1a1a] outline-none"
+            />
+            <Search className="absolute right-3 top-2.5 text-[#636363]" size={18} />
+          </div>
+          <User size={22} className="cursor-pointer" />
+          <ShoppingCart size={22} className="cursor-pointer" />
+          <Menu size={22} className="lg:hidden cursor-pointer" />
+        </div>
+      </nav>
+
+      {/* 3. Hero Section (with Signature Chevrons) */}
+      <section className="relative py-20 px-8 overflow-hidden bg-white">
+        {/* Geometric Blue Chevrons */}
+        <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 w-24 h-[400px] bg-[#024ad8] -skew-x-[25deg] hidden xl:block"></div>
+        <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 w-24 h-[400px] bg-[#024ad8] -skew-x-[25deg] hidden xl:block"></div>
+        
+        <div className="max-w-[1366px] mx-auto">
+          <div className="bg-white rounded-[16px] shadow-[0_2px_8px_rgba(26,26,26,0.08)] border border-[#e8e8e8] flex flex-col md:flex-row overflow-hidden min-h-[500px]">
+            <div className="md:w-1/2 bg-[#f7f7f7] flex items-center justify-center p-12">
+              <img 
+                src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=800" 
+                alt="HP Spectre x360"
+                className="max-w-full h-auto drop-shadow-2xl"
+              />
+            </div>
+            <div className="md:w-1/2 p-16 flex flex-col justify-center">
+              <span className="text-[#024ad8] font-bold text-[14px] uppercase tracking-wider mb-4">NEW ARRIVAL</span>
+              <h1 className="text-[72px] font-medium leading-[1.0] tracking-tight mb-6">Spectre x360.</h1>
+              <p className="text-[18px] text-[#3d3d3d] mb-8 leading-[1.33] max-w-[400px]">
+                Experience a new level of performance and craft. Power to create, anywhere you go.
+              </p>
+              <div className="flex gap-4">
+                <button className="bg-[#024ad8] text-white px-8 py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#0e3191] transition-colors">
+                  Shop Now
+                </button>
+                <button className="border border-[#1a1a1a] text-[#1a1a1a] px-8 py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#f7f7f7]">
+                  Learn More
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Category Grid (Cloud Band) */}
+      <section className="bg-[#f7f7f7] py-20 px-8">
+        <div className="max-w-[1366px] mx-auto text-center mb-12">
+          <h2 className="text-[44px] font-medium tracking-tight mb-4">Shop by category</h2>
+        </div>
+        <div className="max-w-[1366px] mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {['Laptops', 'Desktops', 'Printers', 'Ink & Toner', 'Accessories', 'Business'].map((cat) => (
+            <div key={cat} className="bg-white p-6 rounded-[8px] shadow-[0_2px_8px_rgba(26,26,26,0.08)] flex flex-col items-center cursor-pointer hover:translate-y-[-4px] transition-transform">
+              <div className="w-12 h-12 bg-[#f7f7f7] rounded-full mb-4 flex items-center justify-center">
+                {/* Icon Placeholder */}
+                <div className="w-6 h-6 bg-[#c2c2c2] rounded-sm"></div>
+              </div>
+              <span className="font-medium text-[16px]">{cat}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 5. Product Grid (White Body) */}
+      <section className="py-20 px-8">
+        <div className="max-w-[1366px] mx-auto flex justify-between items-end mb-12">
+          <h2 className="text-[44px] font-medium tracking-tight">Trending Laptops</h2>
+          <a href="#" className="text-[#024ad8] font-medium hover:underline">View all laptops &rarr;</a>
+        </div>
+        <div className="max-w-[1366px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white rounded-[16px] p-6 shadow-[0_2px_8px_rgba(26,26,26,0.08)] border border-[#e8e8e8] flex flex-col h-full">
+              <div className="aspect-square bg-white mb-6 flex items-center justify-center relative">
+                <img src={`https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=400`} alt="Laptop" />
+                {i === 1 && <span className="absolute top-0 left-0 bg-[#ff5050] text-white text-[12px] font-bold px-2 py-1 rounded-[2px]">SAVE $200</span>}
+              </div>
+              <h3 className="text-[20px] font-medium mb-2">HP Envy x360 2-in-1 Laptop 15t-fe000</h3>
+              <p className="text-[14px] text-[#636363] mb-4 flex-grow">Windows 11 Home, Intel® Core™ i7, 16GB RAM, 512GB SSD</p>
+              <div className="mb-6">
+                <span className="text-[24px] font-medium">$899.99</span>
+                <span className="text-[14px] text-[#636363] line-through ml-2">$1,099.99</span>
+              </div>
+              <button className="w-full border border-[#1a1a1a] text-[#1a1a1a] py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#1a1a1a] hover:text-white transition-all">
+                Add to Cart
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Dark Help Band (Ink Slab) */}
+      <section className="bg-[#1a1a1a] text-white py-20 px-8 relative overflow-hidden">
+        <div className="max-w-[1366px] mx-auto relative z-10 text-center">
+          <h2 className="text-[56px] font-medium tracking-tight mb-8">How can we help?</h2>
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {['Browse Topics', 'Live Chat', 'Contact Us', 'Diagnose PC', 'Order Status'].map((tab, idx) => (
+              <button 
+                key={tab} 
+                className={`px-6 py-2 rounded-full text-[16px] font-medium transition-all ${idx === 0 ? 'bg-white text-[#1a1a1a]' : 'bg-transparent border border-white/20 hover:border-white'}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+            {[1, 2, 3].map((j) => (
+              <div key={j} className="bg-white/5 p-8 rounded-[16px] backdrop-blur-sm border border-white/10">
+                <h4 className="text-[20px] font-medium mb-3">Support for Business</h4>
+                <p className="text-[#c2c2c2] text-[16px] mb-6">Manage your fleet of devices with specialized enterprise support tools.</p>
+                <a href="#" className="text-white font-bold text-[14px] uppercase tracking-wider border-b-2 border-[#024ad8] pb-1">Learn More</a>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Footer */}
+      <footer className="bg-[#1a1a1a] text-white border-t border-white/10 pt-20 pb-10 px-8">
+        <div className="max-w-[1366px] mx-auto grid grid-cols-2 md:grid-cols-5 gap-12 mb-20">
+          <div>
+            <h5 className="text-[16px] font-bold mb-6">Shop</h5>
+            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
+              <li className="hover:text-white cursor-pointer">Laptops</li>
+              <li className="hover:text-white cursor-pointer">Desktops</li>
+              <li className="hover:text-white cursor-pointer">Printers</li>
+              <li className="hover:text-white cursor-pointer">Accessories</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-[16px] font-bold mb-6">Support</h5>
+            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
+              <li className="hover:text-white cursor-pointer">Download Drivers</li>
+              <li className="hover:text-white cursor-pointer">Support Forum</li>
+              <li className="hover:text-white cursor-pointer">Check Warranty</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-[16px] font-bold mb-6">Company</h5>
+            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
+              <li className="hover:text-white cursor-pointer">About Us</li>
+              <li className="hover:text-white cursor-pointer">Careers</li>
+              <li className="hover:text-white cursor-pointer">Sustainability</li>
+            </ul>
+          </div>
+          <div className="col-span-2">
+            <h5 className="text-[16px] font-bold mb-6">Stay Updated</h5>
+            <div className="flex gap-2">
+              <input 
+                type="email" 
+                placeholder="Email address"
+                className="bg-white/10 border border-white/20 rounded-[4px] px-4 py-2 flex-grow outline-none focus:border-[#024ad8]"
+              />
+              <button className="bg-[#024ad8] px-6 py-2 rounded-[4px] font-bold text-[14px] uppercase">Subscribe</button>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-[1366px] mx-auto pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-[12px] text-[#636363]">
+          <div className="flex gap-8">
+            <span>© 2024 HP Development Company, L.P.</span>
+            <span className="hover:text-white cursor-pointer">Privacy Policy</span>
+            <span className="hover:text-white cursor-pointer">Terms of Use</span>
+          </div>
+          <div className="flex gap-6 grayscale opacity-50">
+            {/* Social Icons */}
+            <div className="w-5 h-5 bg-white rounded-full"></div>
+            <div className="w-5 h-5 bg-white rounded-full"></div>
+            <div className="w-5 h-5 bg-white rounded-full"></div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default HPDesignSystem;
