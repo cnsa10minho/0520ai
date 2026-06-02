@@ -1,237 +1,299 @@
-import React, { useState } from 'react';
-import { Search, ShoppingCart, ChevronDown, ChevronUp, Menu, Globe, User } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>벡터 미로 탈출 게임 (Vector Maze)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            font-family: 'Malgun Gothic', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            margin-bottom: 5px;
+            color: #333;
+        }
+        #instructions {
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #gameContainer {
+            position: relative;
+        }
+        canvas {
+            background-color: #ffffff;
+            border: 4px solid #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #status {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
 
-// --- 디자인 토큰 정의 (Tailwind Config 대용) ---
-const tokens = {
-  colors: {
-    primary: '#024ad8', // HP Electric Blue
-    primaryDeep: '#0e3191',
-    ink: '#1a1a1a',
-    onInk: '#ffffff',
-    canvas: '#ffffff',
-    cloud: '#f7f7f7',
-    fog: '#e8e8e8',
-    steel: '#c2c2c2',
-    bloomCoral: '#ff5050',
-  },
-  spacing: {
-    section: '80px',
-  },
-  rounded: {
-    md: '4px',    // Buttons
-    lg: '8px',    // Icons
-    xl: '16px',   // Cards
-  }
-};
-
-const HPDesignSystem = () => {
-  return (
-    <div className="min-h-screen bg-white font-['Inter',sans-serif] text-[#1a1a1a] antialiased">
-      
-      {/* 1. Utility Strip */}
-      <div className="bg-[#1a1a1a] text-white h-[36px] flex items-center justify-between px-8 text-[14px]">
-        <div className="flex gap-6 items-center">
-          <div className="flex items-center gap-1 opacity-80 cursor-pointer">
-            <Globe size={14} /> <span>Republic of Korea</span>
-          </div>
-          <div className="flex gap-4 border-l border-white/20 pl-4">
-            <span className="font-medium cursor-pointer">For Home</span>
-            <span className="opacity-60 cursor-pointer hover:opacity-100">For Business</span>
-          </div>
-        </div>
-        <div className="flex gap-6 items-center opacity-80">
-          <span className="cursor-pointer">Sign in</span>
-          <span className="cursor-pointer">Support</span>
-        </div>
-      </div>
-
-      {/* 2. Top Nav */}
-      <nav className="h-[64px] border-b border-[#e8e8e8] flex items-center justify-between px-8 sticky top-0 bg-white z-50">
-        <div className="flex items-center gap-10">
-          {/* HP Wordmark (Placeholder) */}
-          <div className="text-[28px] font-bold tracking-tighter text-black mr-4">hp</div>
-          <div className="hidden lg:flex gap-8 text-[16px] font-normal">
-            {['Laptops', 'Desktops', 'Printers', 'Accessories', 'Solutions'].map((item) => (
-              <a key={item} href="#" className="hover:text-[#024ad8] transition-colors">{item}</a>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="relative hidden md:block">
-            <input 
-              type="text" 
-              placeholder="Search HP.com"
-              className="w-[240px] h-[40px] bg-white border border-[#c2c2c2] rounded-[4px] px-4 py-2 text-[14px] focus:border-[#1a1a1a] outline-none"
-            />
-            <Search className="absolute right-3 top-2.5 text-[#636363]" size={18} />
-          </div>
-          <User size={22} className="cursor-pointer" />
-          <ShoppingCart size={22} className="cursor-pointer" />
-          <Menu size={22} className="lg:hidden cursor-pointer" />
-        </div>
-      </nav>
-
-      {/* 3. Hero Section (with Signature Chevrons) */}
-      <section className="relative py-20 px-8 overflow-hidden bg-white">
-        {/* Geometric Blue Chevrons */}
-        <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 w-24 h-[400px] bg-[#024ad8] -skew-x-[25deg] hidden xl:block"></div>
-        <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 w-24 h-[400px] bg-[#024ad8] -skew-x-[25deg] hidden xl:block"></div>
-        
-        <div className="max-w-[1366px] mx-auto">
-          <div className="bg-white rounded-[16px] shadow-[0_2px_8px_rgba(26,26,26,0.08)] border border-[#e8e8e8] flex flex-col md:flex-row overflow-hidden min-h-[500px]">
-            <div className="md:w-1/2 bg-[#f7f7f7] flex items-center justify-center p-12">
-              <img 
-                src="https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&q=80&w=800" 
-                alt="HP Spectre x360"
-                className="max-w-full h-auto drop-shadow-2xl"
-              />
-            </div>
-            <div className="md:w-1/2 p-16 flex flex-col justify-center">
-              <span className="text-[#024ad8] font-bold text-[14px] uppercase tracking-wider mb-4">NEW ARRIVAL</span>
-              <h1 className="text-[72px] font-medium leading-[1.0] tracking-tight mb-6">Spectre x360.</h1>
-              <p className="text-[18px] text-[#3d3d3d] mb-8 leading-[1.33] max-w-[400px]">
-                Experience a new level of performance and craft. Power to create, anywhere you go.
-              </p>
-              <div className="flex gap-4">
-                <button className="bg-[#024ad8] text-white px-8 py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#0e3191] transition-colors">
-                  Shop Now
-                </button>
-                <button className="border border-[#1a1a1a] text-[#1a1a1a] px-8 py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#f7f7f7]">
-                  Learn More
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Category Grid (Cloud Band) */}
-      <section className="bg-[#f7f7f7] py-20 px-8">
-        <div className="max-w-[1366px] mx-auto text-center mb-12">
-          <h2 className="text-[44px] font-medium tracking-tight mb-4">Shop by category</h2>
-        </div>
-        <div className="max-w-[1366px] mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {['Laptops', 'Desktops', 'Printers', 'Ink & Toner', 'Accessories', 'Business'].map((cat) => (
-            <div key={cat} className="bg-white p-6 rounded-[8px] shadow-[0_2px_8px_rgba(26,26,26,0.08)] flex flex-col items-center cursor-pointer hover:translate-y-[-4px] transition-transform">
-              <div className="w-12 h-12 bg-[#f7f7f7] rounded-full mb-4 flex items-center justify-center">
-                {/* Icon Placeholder */}
-                <div className="w-6 h-6 bg-[#c2c2c2] rounded-sm"></div>
-              </div>
-              <span className="font-medium text-[16px]">{cat}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. Product Grid (White Body) */}
-      <section className="py-20 px-8">
-        <div className="max-w-[1366px] mx-auto flex justify-between items-end mb-12">
-          <h2 className="text-[44px] font-medium tracking-tight">Trending Laptops</h2>
-          <a href="#" className="text-[#024ad8] font-medium hover:underline">View all laptops &rarr;</a>
-        </div>
-        <div className="max-w-[1366px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-[16px] p-6 shadow-[0_2px_8px_rgba(26,26,26,0.08)] border border-[#e8e8e8] flex flex-col h-full">
-              <div className="aspect-square bg-white mb-6 flex items-center justify-center relative">
-                <img src={`https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=400`} alt="Laptop" />
-                {i === 1 && <span className="absolute top-0 left-0 bg-[#ff5050] text-white text-[12px] font-bold px-2 py-1 rounded-[2px]">SAVE $200</span>}
-              </div>
-              <h3 className="text-[20px] font-medium mb-2">HP Envy x360 2-in-1 Laptop 15t-fe000</h3>
-              <p className="text-[14px] text-[#636363] mb-4 flex-grow">Windows 11 Home, Intel® Core™ i7, 16GB RAM, 512GB SSD</p>
-              <div className="mb-6">
-                <span className="text-[24px] font-medium">$899.99</span>
-                <span className="text-[14px] text-[#636363] line-through ml-2">$1,099.99</span>
-              </div>
-              <button className="w-full border border-[#1a1a1a] text-[#1a1a1a] py-3 rounded-[4px] font-bold text-[14px] uppercase tracking-[0.7px] hover:bg-[#1a1a1a] hover:text-white transition-all">
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 6. Dark Help Band (Ink Slab) */}
-      <section className="bg-[#1a1a1a] text-white py-20 px-8 relative overflow-hidden">
-        <div className="max-w-[1366px] mx-auto relative z-10 text-center">
-          <h2 className="text-[56px] font-medium tracking-tight mb-8">How can we help?</h2>
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {['Browse Topics', 'Live Chat', 'Contact Us', 'Diagnose PC', 'Order Status'].map((tab, idx) => (
-              <button 
-                key={tab} 
-                className={`px-6 py-2 rounded-full text-[16px] font-medium transition-all ${idx === 0 ? 'bg-white text-[#1a1a1a]' : 'bg-transparent border border-white/20 hover:border-white'}`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            {[1, 2, 3].map((j) => (
-              <div key={j} className="bg-white/5 p-8 rounded-[16px] backdrop-blur-sm border border-white/10">
-                <h4 className="text-[20px] font-medium mb-3">Support for Business</h4>
-                <p className="text-[#c2c2c2] text-[16px] mb-6">Manage your fleet of devices with specialized enterprise support tools.</p>
-                <a href="#" className="text-white font-bold text-[14px] uppercase tracking-wider border-b-2 border-[#024ad8] pb-1">Learn More</a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Footer */}
-      <footer className="bg-[#1a1a1a] text-white border-t border-white/10 pt-20 pb-10 px-8">
-        <div className="max-w-[1366px] mx-auto grid grid-cols-2 md:grid-cols-5 gap-12 mb-20">
-          <div>
-            <h5 className="text-[16px] font-bold mb-6">Shop</h5>
-            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
-              <li className="hover:text-white cursor-pointer">Laptops</li>
-              <li className="hover:text-white cursor-pointer">Desktops</li>
-              <li className="hover:text-white cursor-pointer">Printers</li>
-              <li className="hover:text-white cursor-pointer">Accessories</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="text-[16px] font-bold mb-6">Support</h5>
-            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
-              <li className="hover:text-white cursor-pointer">Download Drivers</li>
-              <li className="hover:text-white cursor-pointer">Support Forum</li>
-              <li className="hover:text-white cursor-pointer">Check Warranty</li>
-            </ul>
-          </div>
-          <div>
-            <h5 className="text-[16px] font-bold mb-6">Company</h5>
-            <ul className="flex flex-col gap-4 text-[14px] text-[#c2c2c2]">
-              <li className="hover:text-white cursor-pointer">About Us</li>
-              <li className="hover:text-white cursor-pointer">Careers</li>
-              <li className="hover:text-white cursor-pointer">Sustainability</li>
-            </ul>
-          </div>
-          <div className="col-span-2">
-            <h5 className="text-[16px] font-bold mb-6">Stay Updated</h5>
-            <div className="flex gap-2">
-              <input 
-                type="email" 
-                placeholder="Email address"
-                className="bg-white/10 border border-white/20 rounded-[4px] px-4 py-2 flex-grow outline-none focus:border-[#024ad8]"
-              />
-              <button className="bg-[#024ad8] px-6 py-2 rounded-[4px] font-bold text-[14px] uppercase">Subscribe</button>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-[1366px] mx-auto pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-[12px] text-[#636363]">
-          <div className="flex gap-8">
-            <span>© 2024 HP Development Company, L.P.</span>
-            <span className="hover:text-white cursor-pointer">Privacy Policy</span>
-            <span className="hover:text-white cursor-pointer">Terms of Use</span>
-          </div>
-          <div className="flex gap-6 grayscale opacity-50">
-            {/* Social Icons */}
-            <div className="w-5 h-5 bg-white rounded-full"></div>
-            <div className="w-5 h-5 bg-white rounded-full"></div>
-            <div className="w-5 h-5 bg-white rounded-full"></div>
-          </div>
-        </div>
-      </footer>
+    <h1>📐 벡터 미로 탈출 게임</h1>
+    <div id="instructions">
+        <strong>1단계:</strong> 회전하는 화살표를 보고 원하는 각도에서 <strong>[스페이스바]</strong>를 누르세요.<br>
+        <strong>2단계:</strong> 기본(+x축) 벡터와 내가 고른 벡터가 <strong>합성된 주황색 화살표</strong>의 크기가 변합니다. <strong>[스페이스바]</strong>로 크기를 결정하세요!
     </div>
-  );
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+    </div>
+    
+    <div id="status">상태: 방향 결정 중... [스페이스바를 누르세요]</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const statusDiv = document.getElementById('status');
+
+// 게임 상태 관리
+// 0: 방향 고르는 중, 1: 크기 고르는 중, 2: 공 이동 중, 3: 게임 오버, 4: 클리어
+let gameState = 0; 
+
+// 공 (플레이어) 설정
+let ball = {
+    x: 60,
+    y: 70,
+    radius: 15,
+    targetX: 60,
+    targetY: 70,
+    speed: 3
 };
 
-export default HPDesignSystem;
+// 미로 벽 데이터
+const walls = [
+    {x: 0, y: 0, w: 800, h: 20},
+    {x: 0, y: 580, w: 800, h: 20},
+    {x: 0, y: 0, w: 20, h: 600},
+    {x: 780, y: 0, w: 20, h: 600},
+    
+    // 내부 미로 벽
+    {x: 150, y: 0, w: 30, h: 450},
+    {x: 300, y: 150, w: 30, h: 450},
+    {x: 450, y: 0, w: 30, h: 450},
+    {x: 600, y: 150, w: 30, h: 450},
+    {x: 600, y: 150, w: 100, h: 30}
+];
+
+// 골인 지점
+const goal = { x: 700, y: 70, w: 50, h: 50 };
+
+// 벡터 관련 변수
+const baseVectorLength = 50; // 기본 벡터 및 회전 벡터의 기준 크기
+let rotationAngle = 0;       // 회전하는 화살표의 각도
+let rotationSpeed = 0.04;
+let savedRotationAngle = 0;  // 1단계에서 멈춘 각도 저장
+
+let finalAngle = 0;          // 두 벡터가 합성된 최종 방향 각도
+let currentMagnitude = 50;   // 현재 조절 중인 합성 벡터의 크기(길이)
+let magnitudeDelta = 2;      // 크기 변화 속도
+let maxMagnitude = 160;
+let minMagnitude = 15;
+
+// 입력 처리
+window.addEventListener('keydown', function(e) {
+    if (e.code === 'Space') {
+        e.preventDefault(); 
+        
+        if (gameState === 0) {
+            // 1단계 완료 -> 각도 고정
+            savedRotationAngle = rotationAngle;
+            
+            // 합성 벡터의 방향(각도) 계산
+            let baseVx = baseVectorLength; // +x축 방향 (방향 0)
+            let baseVy = 0;
+            let rotVx = Math.cos(savedRotationAngle) * baseVectorLength;
+            let rotVy = Math.sin(savedRotationAngle) * baseVectorLength;
+            
+            let sumX = baseVx + rotVx;
+            let sumY = baseVy + rotVy;
+            
+            finalAngle = Math.atan2(sumY, sumX); // 합성된 주황색 화살표가 가리킬 최종 각도
+            currentMagnitude = Math.sqrt(sumX*sumX + sumY*sumY); // 초기 크기는 두 벡터의 기본 합산 크기로 시작
+            
+            gameState = 1;
+            statusDiv.innerText = "상태: 합성 벡터 크기 결정 중... [스페이스바를 누르세요]";
+        } 
+        else if (gameState === 1) {
+            // 2단계 완료 -> 공 이동 시작
+            ball.targetX = ball.x + Math.cos(finalAngle) * currentMagnitude;
+            ball.targetY = ball.y + Math.sin(finalAngle) * currentMagnitude;
+            gameState = 2;
+            statusDiv.innerText = "상태: 이동 중...";
+        }
+        else if (gameState === 3 || gameState === 4) {
+            resetGame();
+        }
+    }
+});
+
+function resetGame() {
+    ball.x = 60;
+    ball.y = 70;
+    ball.targetX = 60;
+    ball.targetY = 70;
+    gameState = 0;
+    rotationAngle = 0;
+    statusDiv.innerText = "상태: 방향 결정 중... [스페이스바를 누르세요]";
+    statusDiv.style.color = "#2c3e50";
+}
+
+function checkCollision(circle, rect) {
+    let closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.w));
+    let closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.h));
+    let distanceX = circle.x - closestX;
+    let distanceY = circle.y - closestY;
+    return (distanceX * distanceX + distanceY * distanceY) < (circle.radius * circle.radius);
+}
+
+function drawArrow(fromX, fromY, toX, toY, color, width = 3) {
+    let headLength = 10;
+    let angle = Math.atan2(toY - fromY, toX - fromX);
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.stroke();
+    
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    ctx.fill();
+}
+
+// 메인 루프
+function update() {
+    // 1. 상태 업데이트
+    if (gameState === 0) {
+        rotationAngle += rotationSpeed;
+    } 
+    else if (gameState === 1) {
+        currentMagnitude += magnitudeDelta;
+        if (currentMagnitude > maxMagnitude || currentMagnitude < minMagnitude) {
+            magnitudeDelta = -magnitudeDelta;
+        }
+    } 
+    else if (gameState === 2) {
+        let dx = ball.targetX - ball.x;
+        let dy = ball.targetY - ball.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist > ball.speed) {
+            ball.x += (dx / dist) * ball.speed;
+            ball.y += (dy / dist) * ball.speed;
+            
+            for (let wall of walls) {
+                if (checkCollision(ball, wall)) {
+                    gameState = 3;
+                    statusDiv.innerText = "💥 벽에 부딪혔습니다! [스페이스바]를 눌러 재시작";
+                    statusDiv.style.color = "red";
+                    break;
+                }
+            }
+            
+            if (checkCollision(ball, goal)) {
+                gameState = 4;
+                statusDiv.innerText = "🎉 축하합니다! 탈출 성공! [스페이스바]를 눌러 재시작";
+                statusDiv.style.color = "green";
+            }
+        } else {
+            ball.x = ball.targetX;
+            ball.y = ball.targetY;
+            gameState = 0;
+            statusDiv.innerText = "상태: 방향 결정 중... [스페이스바를 누르세요]";
+        }
+    }
+
+    // 2. 렌더링
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 미로 벽 및 골인 지점
+    ctx.fillStyle = '#34495e';
+    for (let wall of walls) ctx.fillRect(wall.x, wall.y, wall.w, wall.h);
+    ctx.fillStyle = '#2ecc71';
+    ctx.fillRect(goal.x, goal.y, goal.w, goal.h);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('GOAL', goal.x + 6, goal.y + 30);
+
+    // 플레이어 공
+    ctx.fillStyle = '#3498db';
+    ctx.beginPath();
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2980b9';
+    ctx.stroke();
+
+    // 벡터 시각화 파트
+    if (gameState === 0) {
+        // [1단계] 오직 회전하는 화살표 하나만 표시 (보라색)
+        let rotX = ball.x + Math.cos(rotationAngle) * baseVectorLength;
+        let rotY = ball.y + Math.sin(rotationAngle) * baseVectorLength;
+        drawArrow(ball.x, ball.y, rotX, rotY, '#9b59b6', 3);
+    } 
+    else if (gameState === 1) {
+        // [2단계] 사용자가 스페이스바를 누른 후 계산 연출 시작
+        
+        // 1. 고정된 기본 +x축 벡터 표시 (빨간색)
+        drawArrow(ball.x, ball.y, ball.x + baseVectorLength, ball.y, '#e74c3c', 2);
+        
+        // 2. 사용자가 선택해서 멈춘 벡터 표시 (보라색 고정)
+        let rotX = ball.x + Math.cos(savedRotationAngle) * baseVectorLength;
+        let rotY = ball.y + Math.sin(savedRotationAngle) * baseVectorLength;
+        drawArrow(ball.x, ball.y, rotX, rotY, '#9b59b6', 2);
+        
+        // 3. 실시간으로 늘어났다 줄어드는 '최종 합성 벡터' 표시 (주황색 두껍게)
+        let targetX = ball.x + Math.cos(finalAngle) * currentMagnitude;
+        let targetY = ball.y + Math.sin(finalAngle) * currentMagnitude;
+        drawArrow(ball.x, ball.y, targetX, targetY, '#f39c12', 4);
+
+        // 4. 평행사변형 관계를 보여주기 위한 보조 점선 (현재 크기에 비례하여 매칭)
+        // 합성 벡터의 끝점에서 각 원래 벡터 성분으로 평행하게 선을 그려줌
+        let scale = currentMagnitude / (baseVectorLength * 2 * Math.cos((savedRotationAngle)/2)); 
+        // 학생들이 직관적으로 볼 수 있게 합성 벡터 가이드 점선만 추가
+        ctx.strokeStyle = '#bdc3c7';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        // 기본 벡터 끝 추정치와 합성 벡터 끝 연결
+        ctx.moveTo(ball.x + baseVectorLength, ball.y);
+        ctx.lineTo(targetX, targetY);
+        // 회전 벡터 끝 추정치와 합성 벡터 끝 연결
+        ctx.moveTo(rotX, rotY);
+        ctx.lineTo(targetX, targetY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
+    requestAnimationFrame(update);
+}
+
+update();
+</script>
+
+</body>
+</html>
